@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUNESGARDEN — Alpha Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'k': {
+                            'bg': '#0a0a12', 'surface': '#14141f', 'border': '#222233',
+                            'accent': '#6366f1', 'acc-hov': '#4f46e5', 'gold': '#c9a96e',
+                            'text': '#e0e0ee', 'muted': '#8888aa', 'success': '#34d399', 'danger': '#ef4444',
+                        }
+                    },
+                    fontFamily: {
+                        'display': ['Clash Display', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                        'sans': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a12; color: #e0e0ee; font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .bg-shimmer { background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(201,169,110,0.04) 0%, transparent 50%); }
+        .text-shimmer { background: linear-gradient(135deg, #e0e0ee 0%, #a5b4fc 30%, #c9a96e 60%, #e0e0ee 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 4s ease-in-out infinite; }
+        @keyframes shimmer { 0%, 100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+        .pulse-ring { animation: pulseRing 2s ease-in-out infinite; }
+        @keyframes pulseRing { 0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.2); } 50% { box-shadow: 0 0 0 12px rgba(99,102,241,0); } }
+        .code-reveal { animation: revealCode 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes revealCode { from { opacity: 0; transform: translateY(8px); filter: blur(4px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+        .dot { width: 10px; height: 10px; border-radius: 50%; transition: all 0.4s ease; }
+        .dot-pending { background: #334155; }
+        .dot-success { background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,0.4); }
+        .dot-fail { background: #ef4444; }
+        .tab-btn.active { background: #6366f1; color: white; }
+        .tab-btn { background: #14141f; color: #8888aa; transition: all 0.2s; }
+        .tab-btn:hover { color: #e0e0ee; }
+        .badge-vip { background: rgba(201,169,110,0.15); color: #c9a96e; border: 1px solid rgba(201,169,110,0.3); }
+        .badge-alpha { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+        .badge-silver { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-lg w-full bg-k-surface border border-k-border/20 rounded-3xl shadow-2xl overflow-hidden bg-shimmer" id="main-card">
+        
+        <!-- Header -->
+        <div class="relative z-10 px-6 sm:px-10 pt-10 pb-6 text-center border-b border-k-border/20">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-k-accent/10 border border-k-accent/20 mb-5">
+                <span class="text-2xl">🌙</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-display font-bold text-shimmer mb-2">LUNESGARDEN</h1>
+            <p class="text-k-muted text-sm font-medium">Closed Alpha · Invite-Only Access</p>
+            
+            <!-- Slot Info -->
+            <div class="mt-4 bg-k-bg/60 rounded-xl py-3 px-5 inline-flex items-center gap-2 border border-k-border/20">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-sm text-k-muted">Available Slots: <strong class="text-white" id="slot-count">—</strong>/30</span>
+            </div>
+        </div>
+        
+        <!-- Tab Nav -->
+        <div class="relative z-10 flex border-b border-k-border/20">
+            <button class="tab-btn active flex-1 py-3 text-sm font-semibold" id="tab-register" onclick="switchTab('register')">Register</button>
+            <button class="tab-btn flex-1 py-3 text-sm font-semibold" id="tab-log" onclick="switchTab('log')">Access Log</button>
+        </div>
+        
+        <!-- Tab: Register -->
+        <div class="relative z-10 px-6 sm:px-10 py-8 space-y-6" id="tab-content-register">
+            <div class="bg-k-bg/60 rounded-2xl p-5 border border-k-border/20 text-center space-y-3">
+                <div class="flex justify-center gap-2"><div class="dot dot-pending" id="dot"></div></div>
+                <p class="text-sm text-k-muted font-medium" id="status-text">One chance to verify access</p>
+                <p class="text-xs text-k-muted">70% selection rate for qualified applicants</p>
+            </div>
+            
+            <div id="result-area" class="hidden space-y-4"></div>
+            
+            <button id="main-btn" onclick="checkAvailability()" 
+                    class="pulse-ring w-full py-4 bg-k-accent hover:bg-k-acc-hov text-white rounded-2xl font-display font-bold text-base tracking-wide transition-all duration-300 hover:scale-[1.01] active:scale-[0.98]">
+                <span id="btn-text">Verify Access</span>
+                <span id="btn-sub" class="block text-xs font-normal text-white/60 mt-0.5">Single attempt</span>
+            </button>
+            
+            <div class="text-center pt-2">
+                <p class="text-k-muted text-xs">Have an invitation code?</p>
+                <button onclick="toggleInvite()" class="text-k-gold hover:text-amber-400 text-xs font-semibold underline transition-colors mt-1">Enter invitation code →</button>
+            </div>
+            
+            <div id="invite-area" class="hidden space-y-3">
+                <input type="text" id="invite-input" placeholder="Enter invitation code..." 
+                       class="w-full px-5 py-3 bg-k-bg border border-k-border/30 rounded-xl text-center font-mono text-sm tracking-wide focus:border-k-gold outline-none transition-colors"
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <button onclick="validateInvite()" class="w-full py-3 bg-k-gold hover:bg-amber-500 text-black rounded-xl font-bold text-sm transition-all">Verify Invitation Code</button>
+            </div>
+        </div>
+        
+        <!-- Tab: Log -->
+        <div class="relative z-10 px-4 sm:px-8 py-6 space-y-4 hidden" id="tab-content-log">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-semibold text-k-muted">Recent Access Grants</p>
+                <button onclick="refreshLog()" class="text-xs text-k-accent hover:text-k-acc-hov transition-colors">Refresh</button>
+            </div>
+            <div class="space-y-2 max-h-80 overflow-y-auto" id="log-list">
+                <p class="text-k-muted text-xs text-center py-8">Loading...</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="relative z-10 px-6 sm:px-10 pb-6 text-center">
+            <p class="text-k-muted text-[10px]">Kyonex Studios © 2026 · Confidential</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // LUNESGARDEN — ALPHA ACCESS
+        // ============================================================
+        
+        const SERVER_URL = 'https://lunesgarden-alpha.serveousercontent.com';
+        const STORAGE_KEY = 'lunesgarden_alpha_v4';
+        
+        function getCache() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return { granted: false, code: null, isInvite: false };
+            try { return JSON.parse(raw); } catch(e) { return { granted: false, code: null, isInvite: false }; }
+        }
+        function saveCache(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+        
+        // ==================== FETCH STATS ====================
+        async function fetchStats() {
+            try {
+                const r = await fetch(`${SERVER_URL}/stats`);
+                const d = await r.json();
+                document.getElementById('slot-count').textContent = d.remaining;
+            } catch(e) { document.getElementById('slot-count').textContent = '—'; }
+        }
+        
+        // ==================== CHECK AVAILABILITY ====================
+        async function checkAvailability() {
+            const cache = getCache();
+            if (cache.granted) { showExistingCode(cache); return; }
+            
+            const btn = document.getElementById('main-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnSub = document.getElementById('btn-sub');
+            btnText.textContent = 'Verifying...';
+            btnSub.textContent = 'Connecting to server';
+            btn.classList.add('opacity-80', 'pointer-events-none');
+            
+            try {
+                const r = await fetch(`${SERVER_URL}/check`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+                const d = await r.json();
+                
+                if (d.already_registered) {
+                    cache.granted = true; cache.code = d.code; cache.isInvite = d.isInvite || false;
+                    saveCache(cache);
+                    showExistingCode(cache);
+                    updateDot('success');
+                } else if (d.granted) {
+                    cache.granted = true; cache.code = d.code; cache.isInvite = false;
+                    saveCache(cache);
+                    showSuccess(d.code);
+                    updateDot('success');
+                } else if (d.reason === 'slots_full') {
+                    showFinalFail('All slots are currently full.');
+                    updateDot('fail');
+                    lockButton('Unavailable', 'Slots full');
+                } else {
+                    showFinalFail('Access not granted on this attempt.');
+                    updateDot('fail');
+                    lockButton('Unavailable', 'Attempt used');
+                }
+                fetchStats();
+            } catch(e) {
+                btnText.textContent = 'Connection Error';
+                btnSub.textContent = 'Tap to retry';
+                btn.classList.remove('opacity-80', 'pointer-events-none');
+            }
+        }
+        
+        // ==================== VALIDATE INVITE ====================
+        async function validateInvite() {
+            const input = document.getElementById('invite-input').value.trim().toUpperCase();
+            const cache = getCache();
+            if (cache.granted) { showExistingCode(cache); return; }
+            if (!input) return;
+            
+            const btn = event.target; btn.textContent = 'Verifying...'; btn.disabled = true;
+            
+            try {
+                const r = await fetch(`${SERVER_URL}/invite`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code:input}) });
+                const d = await r.json();
+                if (d.granted) {
+                    cache.granted = true; cache.code = d.code; cache.isInvite = true;
+                    saveCache(cache);
+                    showSuccess(d.code, true);
+                    updateDot('success');
+                    lockButton('Access Granted', 'Invitation verified');
+                    document.getElementById('invite-area').classList.add('hidden');
+                } else {
+                    const reasons = { already_registered:'You already have access.', invalid_code:'Invalid code.', already_claimed:'Already claimed.', slots_full:'Slots full.' };
+                    showToast(reasons[d.reason] || 'Failed.', 'error');
+                }
+            } catch(e) { showToast('Connection error.', 'error'); }
+            btn.textContent = 'Verify Invitation Code'; btn.disabled = false;
+            fetchStats();
+        }
+        
+        // ==================== DISPLAY ====================
+        function showSuccess(code, isInvite=false) {
+            const area = document.getElementById('result-area');
+            area.innerHTML = `
+                <div class="code-reveal bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-6 text-center space-y-4">
+                    <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-500/10">✅</div>
+                    <p class="font-display font-bold text-emerald-400 text-lg">Access Granted</p>
+                    <div class="bg-k-bg rounded-xl p-5 border border-k-border/20">
+                        <p class="text-xs text-k-muted mb-2">YOUR ACCESS KEY</p>
+                        <p class="text-xl font-bold font-mono ${isInvite?'text-k-gold':'text-k-accent'} tracking-wider">${code}</p>
+                    </div>
+                    <p class="text-red-400 text-xs">⚠️ Save this key. It cannot be recovered.</p>
+                    <button onclick="copyCode('${code}')" class="w-full py-3 bg-k-accent hover:bg-k-acc-hov text-white rounded-xl font-semibold text-sm">Copy Access Key</button>
+                </div>`;
+            area.classList.remove('hidden');
+        }
+        
+        function showExistingCode(cache) {
+            const area = document.getElementById('result-area');
+            area.innerHTML = `
+                <div class="bg-k-accent/5 border border-k-accent/20 rounded-2xl p-6 text-center space-y-4">
+                    <p class="font-display font-bold text-k-accent text-lg">Already Registered</p>
+                    <div class="bg-k-bg rounded-xl p-5 border border-k-border/20">
+                        <p class="text-xl font-bold font-mono ${cache.isInvite?'text-k-gold':'text-k-accent'} tracking-wider">${cache.code}</p>
+                    </div>
+                    <button onclick="copyCode('${cache.code}')" class="w-full py-3 bg-k-accent hover:bg-k-acc-hov text-white rounded-xl font-semibold text-sm">Copy Access Key</button>
+                </div>`;
+            area.classList.remove('hidden');
+            updateDot('success');
+            lockButton('Access Granted', 'Key issued');
+        }
+        
+        function showFinalFail(msg) {
+            const area = document.getElementById('result-area');
+            area.innerHTML = `<div class="bg-red-500/5 border border-red-500/15 rounded-2xl p-5 text-center space-y-3"><p class="text-red-400 font-display font-bold">Registration Closed</p><p class="text-k-muted text-sm">${msg}</p></div>`;
+            area.classList.remove('hidden');
+        }
+        
+        function showToast(msg, type) {
+            const area = document.getElementById('result-area');
+            area.innerHTML = `<div class="rounded-xl p-4 text-center border ${type==='error'?'bg-red-500/5 border-red-500/20 text-red-400':'bg-amber-500/5 border-amber-500/20 text-amber-400'}"><p class="text-sm font-semibold">${msg}</p></div>`;
+            area.classList.remove('hidden');
+            setTimeout(() => { if (!getCache().granted) area.classList.add('hidden'); }, 2500);
+        }
+        
+        function updateDot(state) {
+            const dot = document.getElementById('dot');
+            const statusText = document.getElementById('status-text');
+            if (state === 'success') { dot.className = 'dot dot-success'; statusText.textContent = 'Access granted'; }
+            else if (state === 'fail') { dot.className = 'dot dot-fail'; statusText.textContent = 'Attempt used'; }
+        }
+        
+        function lockButton(text, sub) {
+            const btn = document.getElementById('main-btn');
+            document.getElementById('btn-text').textContent = text;
+            document.getElementById('btn-sub').textContent = sub;
+            btn.className = 'w-full py-4 bg-k-border/30 text-k-muted rounded-2xl font-display font-bold text-base cursor-not-allowed';
+            btn.disabled = true;
+        }
+        
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target;
+                const orig = btn.textContent;
+                btn.textContent = 'Copied!'; btn.classList.add('bg-emerald-600');
+                setTimeout(() => { btn.textContent = orig; btn.classList.remove('bg-emerald-600'); }, 2000);
+            }).catch(() => alert('Code: ' + code));
+        }
+        
+        function toggleInvite() {
+            const area = document.getElementById('invite-area');
+            area.classList.toggle('hidden');
+            if (!area.classList.contains('hidden')) document.getElementById('invite-input').focus();
+        }
+        
+        // ==================== TAB SWITCH ====================
+        function switchTab(tab) {
+            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+            document.getElementById('tab-log').classList.toggle('active', tab === 'log');
+            document.getElementById('tab-content-register').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('tab-content-log').classList.toggle('hidden', tab !== 'log');
+            if (tab === 'log') refreshLog();
+        }
+        
+        // ==================== LOG ====================
+        async function refreshLog() {
+            const list = document.getElementById('log-list');
+            list.innerHTML = '<p class="text-k-muted text-xs text-center py-8">Loading...</p>';
+            try {
+                const r = await fetch(`${SERVER_URL}/log`);
+                const data = await r.json();
+                if (!data.length) {
+                    list.innerHTML = '<p class="text-k-muted text-xs text-center py-8">No access granted yet.</p>';
+                    return;
+                }
+                list.innerHTML = data.reverse().map(d => `
+                    <div class="flex items-center justify-between bg-k-bg/40 rounded-xl px-4 py-3 border border-k-border/10">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${d.tier==='VIP'?'badge-vip':'badge-alpha'}">${d.tier==='VIP'?'🥇':'🥈'}</span>
+                            <div>
+                                <p class="text-xs font-mono font-semibold text-k-text">${d.prefix}***</p>
+                                <p class="text-[10px] text-k-muted">Slot #${d.slot}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] ${d.tier==='VIP'?'text-k-gold':'text-k-accent'} font-semibold">${d.tier}</span>
+                            <p class="text-[9px] text-k-muted">${new Date(d.timestamp).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {
+                list.innerHTML = '<p class="text-red-400 text-xs text-center py-8">Failed to load log.</p>';
+            }
+        }
+        
+        // ==================== INIT ====================
+        function init() {
+            fetchStats();
+            const cache = getCache();
+            if (cache.granted) { showExistingCode(cache); }
+        }
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- ==================== SEO META TAGS ==================== -->
+    <title>Kyonex Studios — Indie Game Studio | LUNESGARDEN</title>
+    <meta name="description" content="Kyonex Studios is an indie game studio from Indonesia & Malaysia. Creators of LUNESGARDEN — a mystical farming RPG. Also featuring Catch the Star, 2048 Games Merge, and more.">
+    <meta name="keywords" content="Kyonex Studios, indie game studio, LUNESGARDEN, farming RPG, Godot engine, Indonesian game developer, Malaysia game developer, indie games, PC games, mobile games, Steam, Epic Games, Google Play">
+    <meta name="author" content="Kyonex Studios">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    
+    <!-- ==================== OPEN GRAPH (SOCIAL MEDIA) ==================== -->
+    <meta property="og:title" content="Kyonex Studios — Indie Game Studio">
+    <meta property="og:description" content="Crafting atmospheric, narrative-driven games. Creators of LUNESGARDEN — a mystical farming RPG with monster taming and dungeon exploration.">
+    <meta property="og:image" content="https://kyonex-studios.github.io/Kyonex-Studios-Landpage/assets/og-image.png">
+    <meta property="og:url" content="https://kyonex-studios.github.io/Kyonex-Studios-Landpage">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Kyonex Studios">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- ==================== TWITTER CARD ==================== -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kyonex Studios — Indie Game Studio">
+    <meta name="twitter:description" content="Creators of LUNESGARDEN — a mystical farming RPG. Also check out Catch the Star & 2048 Games!">
+    <meta name="twitter:image" content="https://kyonex-studios.github.io/Kyonex-Studios-Landpage/assets/og-image.png">
+    <meta name="twitter:site" content="@kyonexstudios">
+    <meta name="twitter:creator" content="@kyonexstudios">
+    
+    <!-- ==================== FAVICON ==================== -->
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+    
+    <!-- ==================== CANONICAL URL ==================== -->
+    <link rel="canonical" href="https://kyonex-studios.github.io/Kyonex-Studios-Landpage">
+    
+    <!-- ==================== TAILWIND CSS ==================== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'k': {
+                            'bg': '#0a0a12',
+                            'surface': '#14141f',
+                            'border': '#222233',
+                            'accent': '#818cf8',
+                            'acc-hov': '#6366f1',
+                            'text': '#e0e0ee',
+                            'muted': '#8888aa',
+                            'on': '#34d399',
+                            'off': '#64748b',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'display': ['Clash Display', 'Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-k-bg text-k-text font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- ========== NAVBAR (SCROLL HORIZONTAL DI MOBILE) ========== -->
+<header id="navbar" class="fixed top-0 inset-x-0 z-50 bg-k-bg/85 backdrop-blur-lg border-b border-k-border/40">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
+        <a href="#" onclick="renderHome(); return false;" class="flex items-center gap-2.5 group flex-shrink-0">
+            <img src="assets/logo.png" alt="Kyonex" class="h-8 w-8 rounded-lg border border-k-border/50 group-hover:border-k-accent/40 transition-colors">
+            <span class="font-display font-bold text-lg tracking-tight hidden sm:inline">Kyonex<span class="text-k-accent">.</span></span>
+        </a>
+        <!-- Scrollable nav -->
+        <nav class="flex-1 overflow-x-auto scrollbar-hide -mr-4 pr-4">
+            <div class="flex items-center gap-1 min-w-max">
+                <a href="#" onclick="renderHome(); return false;" class="nav-link px-3 py-2 text-sm text-k-muted hover:text-k-text rounded-lg transition-colors font-medium whitespace-nowrap">Home</a>
+                <a href="#" onclick="renderProjects(); return false;" class="nav-link px-3 py-2 text-sm text-k-muted hover:text-k-text rounded-lg transition-colors font-medium whitespace-nowrap">Projects</a>
+                <a href="#" onclick="renderNews(); return false;" class="nav-link px-3 py-2 text-sm text-k-muted hover:text-k-text rounded-lg transition-colors font-medium whitespace-nowrap">News</a>
+                <a href="#" onclick="renderAbout(); return false;" class="nav-link px-3 py-2 text-sm text-k-muted hover:text-k-text rounded-lg transition-colors font-medium whitespace-nowrap">About</a>
+                <a href="#" onclick="renderRoadmap(); return false;" class="nav-link px-3 py-2 text-sm text-k-muted hover:text-k-text rounded-lg transition-colors font-medium whitespace-nowrap">Roadmap</a>
+                <a href="#" onclick="renderFAQ(); return false;" class="nav-link px-3 py-2 text-sm text-k-muted hover:text-k-text rounded-lg transition-colors font-medium whitespace-nowrap">FAQ</a>
+                <a href="#" onclick="renderContact(); return false;" class="nav-link px-3 py-2 text-sm text-k-muted hover:text-k-text rounded-lg transition-colors font-medium whitespace-nowrap">Contact</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <main id="app" class="flex-1 pt-16"></main>
+
+    <footer class="border-t border-k-border/30 py-5 text-center text-k-muted text-[10px] font-mono">
+        &copy; <span id="year"></span> Kyonex Studios. All rights reserved.
+    </footer>
+
+    <!-- Member Detail Modal -->
+    <div id="member-modal" class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/70 backdrop-blur-sm" onclick="closeMemberModal(event)">
+        <div class="bg-k-surface border border-k-border/30 rounded-2xl p-6 sm:p-8 max-w-sm w-full mx-4 shadow-2xl" onclick="event.stopPropagation()">
+            <div class="text-center space-y-4" id="member-modal-content"></div>
+            <button onclick="document.getElementById('member-modal').classList.add('hidden')" class="mt-4 w-full py-2 bg-k-border/20 hover:bg-k-border/40 text-k-muted hover:text-k-text rounded-lg text-sm font-medium transition-all">Close</button>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/script.js"></script>
+    <!-- ==================== STRUCTURED DATA (JSON-LD) ==================== -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Kyonex Studios",
+    "url": "https://kyonex-studios.github.io/Kyonex-Studios-Landpage",
+    "logo": "https://kyonex-studios.github.io/Kyonex-Studios-Landpage/assets/logo.png",
+    "description": "Indie game studio from Indonesia & Malaysia crafting atmospheric, narrative-driven games.",
+    "foundingDate": "2025-03-26",
+    "founders": [
+        {
+            "@type": "Person",
+            "name": "Kuznetsov",
+            "jobTitle": "Lead Developer"
+        }
+    ],
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "kyonexstudios@gmail.com",
+        "contactType": "customer support"
+    },
+    "sameAs": [
+        "https://youtube.com/@kyonexstudios",
+        "https://bsky.app/profile/kyonex.bsky.social",
+        "https://tiktok.com/@kyonexstudios",
+        "https://github.com/kyonex-studios"
+    ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "LUNESGARDEN",
+    "description": "A mystical farming RPG where you plant, battle monsters, explore dungeons, and uncover the secrets of a forgotten god.",
+    "genre": ["Farming RPG", "Monster Taming", "Dungeon Crawler", "Mystery"],
+    "platform": ["PC", "Steam", "Epic Games Store", "Google Play", "Mobile"],
+    "inLanguage": ["en", "id", "ru", "ms"],
+    "author": {
+        "@type": "Organization",
+        "name": "Kyonex Studios"
+    },
+    "offers": {
+        "@type": "Offer",
+        "price": "TBD",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/PreOrder"
+    }
+}
+</script>
+</body>
+</html>
