@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>✨ Catch the Star 2.0 — Kyonex Studios</title>
+    
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --surface: #14142a;
+            --text: #e0e0ee;
+            --muted: #8888aa;
+            --gold: #fbbf24;
+            --accent: #818cf8;
+            --danger: #ef4444;
+            --rare: #22d3ee;
+            --epic: #a855f7;
+            --legendary: #f59e0b;
+            --mythic: #ec4899;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Background Stars */
+        #bg-stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+        .bg-star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--d) ease-in-out infinite;
+            animation-delay: var(--delay);
+            opacity: 0;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.45; }
+        }
+        
+        /* Game Container */
+        #game-container {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 520px;
+            height: 92vh; max-height: 780px;
+            background: rgba(20, 20, 42, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        /* Header */
+        #game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.25);
+        }
+        #game-header .title {
+            font-weight: 700; font-size: 17px;
+            letter-spacing: -0.3px;
+        }
+        #game-header .title span { color: var(--gold); }
+        #score-display {
+            font-weight: 700; font-size: 15px;
+            color: var(--accent);
+            background: rgba(129,140,248,0.12);
+            padding: 6px 14px; border-radius: 20px;
+        }
+        
+        /* Stats Mini */
+        #stats-mini {
+            display: flex; gap: 12px;
+            padding: 8px 18px;
+            font-size: 10px; color: var(--muted);
+            justify-content: center;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            background: rgba(0,0,0,0.1);
+        }
+        #stats-mini span { display: flex; align-items: center; gap: 4px; }
+        
+        /* Play Area */
+        #play-area {
+            flex: 1; position: relative;
+            cursor: crosshair; overflow: hidden;
+        }
+        
+        /* Targets */
+        .target {
+            position: absolute;
+            width: var(--size); height: var(--size);
+            font-size: var(--size);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+                       floatAnim var(--float-d) ease-in-out infinite;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            filter: drop-shadow(0 0 var(--glow-size) var(--glow-color));
+            transition: transform 0.05s;
+        }
+        .target:active { transform: translate(-50%, -50%) scale(1.35); }
+        .target.bomb { animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+                               floatAnim var(--float-d) ease-in-out infinite,
+                               bombPulse 0.6s ease-in-out infinite; }
+        
+        @keyframes popIn {
+            from { transform: translate(-50%, -50%) scale(0) rotate(-40deg); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes floatAnim {
+            0%, 100% { margin-top: 0; }
+            50% { margin-top: -7px; }
+        }
+        @keyframes bombPulse {
+            0%, 100% { filter: drop-shadow(0 0 6px #ef4444); }
+            50% { filter: drop-shadow(0 0 14px #ef4444); }
+        }
+        
+        /* Particles */
+        .particle {
+            position: absolute; pointer-events: none;
+            width: var(--ps); height: var(--ps);
+            background: var(--pc);
+            border-radius: 50%;
+            animation: particleBurst 0.5s ease-out forwards;
+            z-index: 25;
+        }
+        @keyframes particleBurst {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--px), var(--py)) scale(0); opacity: 0; }
+        }
+        
+        /* Floating Text */
+        .float-text {
+            position: absolute; pointer-events: none;
+            font-weight: 800; z-index: 30;
+            animation: floatUp 0.9s ease-out forwards;
+            text-shadow: 0 0 16px var(--glow-color);
+        }
+        @keyframes floatUp {
+            0% { transform: translate(-50%, 0) scale(0.4); opacity: 1; }
+            100% { transform: translate(-50%, -70px) scale(1.15); opacity: 0; }
+        }
+        
+        .float-text.miss {
+            font-size: 14px; font-weight: 600;
+            color: var(--danger);
+            text-shadow: none;
+            animation: floatUpSmall 0.5s ease-out forwards;
+        }
+        @keyframes floatUpSmall {
+            0% { transform: translate(-50%, 0); opacity: 1; }
+            100% { transform: translate(-50%, -25px); opacity: 0; }
+        }
+        
+        /* Shield Indicator */
+        #shield-indicator {
+            position: absolute; top: 10px; left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 14px;
+            background: rgba(34,211,238,0.2);
+            border: 1px solid rgba(34,211,238,0.4);
+            border-radius: 20px;
+            font-size: 12px; font-weight: 700;
+            color: var(--rare);
+            z-index: 35;
+            display: none;
+            pointer-events: none;
+            animation: shieldGlow 1.5s ease-in-out infinite;
+        }
+        @keyframes shieldGlow {
+            0%, 100% { box-shadow: 0 0 8px rgba(34,211,238,0.2); }
+            50% { box-shadow: 0 0 18px rgba(34,211,238,0.4); }
+        }
+        
+        /* Footer */
+        #game-footer {
+            display: flex; gap: 8px;
+            padding: 10px 18px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.25);
+            font-size: 11px; color: var(--muted);
+            justify-content: space-between; align-items: center;
+        }
+        #combo-badge {
+            padding: 4px 12px; border-radius: 14px;
+            font-weight: 700; font-size: 11px;
+            transition: all 0.2s;
+            background: rgba(251,191,36,0.12);
+            color: var(--gold);
+        }
+        #combo-badge.fire { background: rgba(249,115,22,0.2); color: #f97316; }
+        #combo-badge.rainbow {
+            background: linear-gradient(135deg, #ef4444, #f59e0b, #22d3ee, #a855f7, #ec4899);
+            color: white;
+            animation: rainbowPulse 0.6s ease-in-out infinite;
+        }
+        @keyframes rainbowPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+        
+        /* Overlay */
+        #overlay {
+            position: absolute; inset: 0; z-index: 40;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: rgba(10,10,26,0.9);
+            backdrop-filter: blur(12px);
+            text-align: center; padding: 20px;
+            transition: opacity 0.35s;
+        }
+        #overlay.hidden { opacity: 0; pointer-events: none; }
+        #overlay .big-star { font-size: 72px; margin-bottom: 10px; }
+        #overlay h2 { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+        #overlay .subtitle { color: var(--muted); margin-bottom: 16px; font-size: 14px; }
+        #overlay .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px; margin-bottom: 18px;
+            font-size: 12px; color: var(--muted);
+            text-align: left;
+        }
+        #overlay .stats-grid span strong { color: var(--text); }
+        .btn {
+            padding: 12px 36px; border-radius: 30px;
+            font-weight: 700; font-size: 16px;
+            cursor: pointer; border: none;
+            transition: all 0.2s;
+            letter-spacing: -0.2px;
+        }
+        .btn-play {
+            background: var(--accent); color: white;
+            box-shadow: 0 8px 28px rgba(129,140,248,0.35);
+        }
+        .btn-play:hover { background: #6366f1; transform: translateY(-2px); }
+        #overlay .best-score { color: var(--gold); font-weight: 600; margin-top: 10px; font-size: 13px; }
+        
+        /* Rarity Legend */
+        #rarity-legend {
+            display: flex; gap: 12px; flex-wrap: wrap;
+            justify-content: center; margin-top: 8px;
+            font-size: 10px; color: var(--muted);
+        }
+        #rarity-legend span { display: flex; align-items: center; gap: 3px; }
+        
+        @media (max-width: 520px) {
+            #game-container { border-radius: 0; height: 100vh; max-height: 100vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg-stars"></div>
+
+    <div id="game-container">
+        <!-- Header -->
+        <div id="game-header">
+            <span class="title">✨ Catch the <span>Star</span></span>
+            <span id="score-display">⭐ 0</span>
+        </div>
+        
+        <!-- Stats Mini -->
+        <div id="stats-mini">
+            <span>🎯 <span id="stat-acc">100%</span></span>
+            <span>⭐ <span id="stat-caught">0</span></span>
+            <span>🔥 <span id="stat-maxcombo">x1</span></span>
+        </div>
+        
+        <!-- Play Area -->
+        <div id="play-area">
+            <div id="shield-indicator">🛡️ Shield Active</div>
+            
+            <div id="overlay">
+                <div class="big-star">🌟</div>
+                <h2 id="overlay-title">Catch the Star!</h2>
+                <p class="subtitle" id="overlay-subtitle">Tap stars · Avoid bombs · Build combos</p>
+                
+                <!-- Rarity Legend -->
+                <div id="rarity-legend">
+                    <span>⭐ Common</span>
+                    <span style="color:#22d3ee;">🌟 Rare</span>
+                    <span style="color:#a855f7;">💫 Epic</span>
+                    <span style="color:#f59e0b;">✨ Legendary</span>
+                    <span style="color:#ec4899;">🔮 Mythic</span>
+                    <span style="color:#ef4444;">💣 Bomb!</span>
+                </div>
+                
+                <button class="btn btn-play" id="btn-start" style="margin-top:14px;">Start Game</button>
+                <p class="best-score" id="best-score-text">Best: ⭐ 0</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div id="game-footer">
+            <span>⏱ <span id="timer">30</span>s</span>
+            <span id="combo-badge">Combo x1</span>
+            <span style="font-size:10px;color:#444;">Kyonex</span>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // CATCH THE STAR 2.0 — Kyonex Studios
+        // ============================================================
+        
+        const playArea = document.getElementById('play-area');
+        const scoreDisplay = document.getElementById('score-display');
+        const timerDisplay = document.getElementById('timer');
+        const comboBadge = document.getElementById('combo-badge');
+        const overlay = document.getElementById('overlay');
+        const overlayTitle = document.getElementById('overlay-title');
+        const overlaySubtitle = document.getElementById('overlay-subtitle');
+        const btnStart = document.getElementById('btn-start');
+        const bestScoreText = document.getElementById('best-score-text');
+        const shieldIndicator = document.getElementById('shield-indicator');
+        const statAcc = document.getElementById('stat-acc');
+        const statCaught = document.getElementById('stat-caught');
+        const statMaxCombo = document.getElementById('stat-maxcombo');
+        
+        // --- Game State ---
+        let score = 0, combo = 0, maxCombo = 0;
+        let timeLeft = 30, gameActive = false;
+        let totalClicks = 0, totalCaught = 0;
+        let hasShield = false;
+        let bestScore = parseInt(localStorage.getItem('catchStarV2Best') || '0');
+        let timerInterval = null, spawnInterval = null;
+        let difficulty = 1;
+        const activeTargets = [];
+        
+        // --- Audio ---
+        function playSound(freq, type = 'sine', duration = 0.1, vol = 0.07) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 0.5, ctx.currentTime + duration);
+                gain.gain.setValueAtTime(vol, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime); osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
+        
+        function sfxCatch(rarity) {
+            const sounds = {
+                common: [880, 'sine', 0.1, 0.06],
+                rare: [1100, 'sine', 0.12, 0.07],
+                epic: [1320, 'triangle', 0.14, 0.08],
+                legendary: [1560, 'triangle', 0.16, 0.09],
+                mythic: [1760, 'sawtooth', 0.2, 0.1],
+                bomb: [200, 'square', 0.25, 0.12],
+                shield: [660, 'sine', 0.15, 0.06],
+                time: [990, 'sine', 0.1, 0.06],
+            };
+            const s = sounds[rarity] || sounds.common;
+            playSound(...s);
+            if (rarity === 'mythic') {
+                setTimeout(() => playSound(2200, 'triangle', 0.15, 0.08), 150);
+                setTimeout(() => playSound(2640, 'triangle', 0.15, 0.08), 300);
+            }
+        }
+        
+        // --- Background Stars ---
+        function createBgStars() {
+            const container = document.getElementById('bg-stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.classList.add('bg-star');
+                const s = Math.random() * 2 + 0.8;
+                star.style.cssText = `
+                    width:${s}px; height:${s}px;
+                    left:${Math.random()*100}%; top:${Math.random()*100}%;
+                    --d:${Math.random()*3+2}s; --delay:${Math.random()*5}s;
+                `;
+                container.appendChild(star);
+            }
+        }
+        
+        // --- Particles ---
+        function spawnParticles(x, y, color, count = 8) {
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.classList.add('particle');
+                const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
+                const dist = 20 + Math.random() * 30;
+                p.style.cssText = `
+                    left:${x}px; top:${y}px;
+                    --ps:${2+Math.random()*3}px;
+                    --pc:${color};
+                    --px:${Math.cos(angle)*dist}px;
+                    --py:${Math.sin(angle)*dist}px;
+                `;
+                playArea.appendChild(p);
+                setTimeout(() => p.remove(), 500);
+            }
+        }
+        
+        // --- Floating Text ---
+        function floatText(x, y, text, color, size = 22) {
+            const ft = document.createElement('div');
+            ft.classList.add('float-text');
+            ft.style.cssText = `left:${x}px; top:${y}px; font-size:${size}px; color:${color}; --glow-color:${color};`;
+            ft.textContent = text;
+            playArea.appendChild(ft);
+            setTimeout(() => ft.remove(), 900);
+        }
+        
+        // --- Target Types ---
+        const targetTypes = {
+            star_common:  { emoji:'⭐', points:10,  size:34, rarity:'common',    color:'#fbbf24', glow:'rgba(251,191,36,0.5)', weight:60 },
+            star_rare:    { emoji:'🌟', points:30,  size:40, rarity:'rare',      color:'#22d3ee', glow:'rgba(34,211,238,0.6)', weight:22 },
+            star_epic:    { emoji:'💫', points:60,  size:36, rarity:'epic',      color:'#a855f7', glow:'rgba(168,85,247,0.7)', weight:10 },
+            star_legend:  { emoji:'✨', points:120, size:30, rarity:'legendary', color:'#f59e0b', glow:'rgba(245,158,11,0.8)', weight:4 },
+            star_mythic:  { emoji:'🔮', points:250, size:42, rarity:'mythic',    color:'#ec4899', glow:'rgba(236,72,153,0.9)', weight:1 },
+            bomb:         { emoji:'💣', points:-40, size:38, rarity:'bomb',      color:'#ef4444', glow:'rgba(239,68,68,0.6)',  weight:12 },
+            shield:       { emoji:'🛡️', points:0,   size:32, rarity:'shield',    color:'#22d3ee', glow:'rgba(34,211,238,0.7)', weight:3 },
+            time_bonus:   { emoji:'⏳', points:0,   size:30, rarity:'time',      color:'#fbbf24', glow:'rgba(251,191,36,0.6)', weight:4 },
+        };
+        
+        function getWeightedType() {
+            const total = Object.values(targetTypes).reduce((s, t) => s + t.weight, 0);
+            let r = Math.random() * total;
+            for (const [key, t] of Object.entries(targetTypes)) {
+                r -= t.weight;
+                if (r <= 0) return { key, ...t };
+            }
+            return { key: 'star_common', ...targetTypes.star_common };
+        }
+        
+        // --- Spawn ---
+        function spawnTarget() {
+            if (!gameActive) return;
+            
+            const areaRect = playArea.getBoundingClientRect();
+            const margin = 45;
+            const x = margin + Math.random() * (areaRect.width - margin * 2);
+            const y = margin + Math.random() * (areaRect.height - margin * 2);
+            
+            const type = getWeightedType();
+            
+            const el = document.createElement('div');
+            el.classList.add('target');
+            if (type.key === 'bomb') el.classList.add('bomb');
+            el.textContent = type.emoji;
+            el.style.cssText = `
+                left:${x}px; top:${y}px;
+                --size:${type.size}px;
+                --glow-size:${type.key==='bomb'?12:8}px;
+                --glow-color:${type.glow};
+                --float-d:${1.5+Math.random()*2}s;
+            `;
+            el.dataset.type = type.key;
+            el.dataset.points = type.points;
+            el.dataset.rarity = type.rarity;
+            
+            // Click handler
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!gameActive) return;
+                handleClick(el, type, x, y);
+            });
+            
+            playArea.appendChild(el);
+            activeTargets.push({ el, x, y, type });
+            
+            // Auto-remove
+            const lifetime = 1000 + Math.random() * 1500 - (difficulty * 50);
+            setTimeout(() => {
+                if (el.parentNode && gameActive) {
+                    if (type.key !== 'bomb') handleMiss(el, x, y);
+                    else el.remove(); // bombs just vanish
+                    const idx = activeTargets.findIndex(t => t.el === el);
+                    if (idx >= 0) activeTargets.splice(idx, 1);
+                }
+            }, Math.max(600, lifetime));
+        }
+        
+        // --- Handle Click ---
+        function handleClick(el, type, x, y) {
+            totalClicks++;
+            
+            if (type.key === 'bomb') {
+                // Bomb!
+                totalCaught--; // penalty
+                combo = 0;
+                hasShield = false;
+                shieldIndicator.style.display = 'none';
+                score = Math.max(0, score + type.points);
+                sfxCatch('bomb');
+                spawnParticles(x, y, '#ef4444', 14);
+                floatText(x, y, type.points, '#ef4444', 20);
+                el.style.transform = 'translate(-50%, -50%) scale(1.3)';
+                el.style.opacity = '0';
+                el.style.transition = 'all 0.15s';
+                setTimeout(() => el.remove(), 150);
+            } else if (type.key === 'shield') {
+                hasShield = true;
+                shieldIndicator.style.display = 'block';
+                sfxCatch('shield');
+                spawnParticles(x, y, '#22d3ee', 10);
+                floatText(x, y, 'SHIELD!', '#22d3ee', 18);
+                el.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                el.style.opacity = '0';
+                el.style.transition = 'all 0.2s';
+                setTimeout(() => el.remove(), 200);
+            } else if (type.key === 'time_bonus') {
+                timeLeft += 3;
+                timerDisplay.textContent = timeLeft;
+                sfxCatch('time');
+                spawnParticles(x, y, '#fbbf24', 8);
+                floatText(x, y, '+3s', '#fbbf24', 18);
+                el.style.opacity = '0';
+                el.style.transition = 'all 0.2s';
+                setTimeout(() => el.remove(), 200);
+            } else {
+                // Star!
+                totalCaught++;
+                combo++;
+                if (combo > maxCombo) maxCombo = combo;
+                
+                const bonus = Math.floor(combo / 5) * 5;
+                const pts = type.points + bonus;
+                score += pts;
+                
+                sfxCatch(type.rarity);
+                spawnParticles(x, y, type.color, type.rarity === 'mythic' ? 18 : type.rarity === 'legendary' ? 12 : 8);
+                
+                let txt = `+${pts}`;
+                if (combo >= 15) txt = `+${pts} 🌈x${combo}`;
+                else if (combo >= 5) txt = `+${pts} x${combo}`;
+                floatText(x, y, txt, type.color, type.rarity === 'mythic' ? 28 : 22);
+                
+                el.style.transform = 'translate(-50%, -50%) scale(1.4)';
+                el.style.opacity = '0';
+                el.style.transition = 'all 0.12s';
+                setTimeout(() => el.remove(), 120);
+            }
+            
+            // Remove from active
+            const idx = activeTargets.findIndex(t => t.el === el);
+            if (idx >= 0) activeTargets.splice(idx, 1);
+            
+            updateUI();
+        }
+        
+        // --- Handle Miss ---
+        function handleMiss(el, x, y) {
+            if (hasShield) {
+                hasShield = false;
+                shieldIndicator.style.display = 'none';
+                floatText(x, y, '🛡️', '#22d3ee', 18);
+                el.style.opacity = '0';
+                el.style.transition = 'all 0.3s';
+                setTimeout(() => el.remove(), 300);
+                return;
+            }
+            combo = 0;
+            floatText(x, y, 'miss', '#ef4444', 13);
+            el.style.opacity = '0';
+            el.style.transition = 'opacity 0.3s';
+            setTimeout(() => el.remove(), 300);
+            updateUI();
+        }
+        
+        // --- Click on empty area ---
+        playArea.addEventListener('click', (e) => {
+            if (!gameActive || e.target !== playArea) return;
+            totalClicks++;
+            if (!hasShield) combo = 0;
+            updateUI();
+        });
+        
+        // --- Update UI ---
+        function updateUI() {
+            scoreDisplay.textContent = `⭐ ${score}`;
+            
+            const acc = totalClicks > 0 ? Math.round((totalCaught / totalClicks) * 100) : 100;
+            statAcc.textContent = `${Math.max(0, acc)}%`;
+            statCaught.textContent = totalCaught;
+            statMaxCombo.textContent = `x${maxCombo || 1}`;
+            
+            if (combo >= 20) {
+                comboBadge.textContent = `🌈 GODLIKE x${combo}`;
+                comboBadge.className = 'rainbow';
+            } else if (combo >= 10) {
+                comboBadge.textContent = `🔥 AMAZING x${combo}`;
+                comboBadge.className = 'fire';
+            } else if (combo >= 5) {
+                comboBadge.textContent = `⚡ Great x${combo}`;
+                comboBadge.className = '';
+            } else {
+                comboBadge.textContent = `Combo x${combo || 1}`;
+                comboBadge.className = '';
+            }
+        }
+        
+        // --- Timer ---
+        function startTimer() {
+            timeLeft = 30;
+            timerDisplay.textContent = timeLeft;
+            timerDisplay.style.color = '#e0e0ee';
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                if (timeLeft <= 8) timerDisplay.style.color = '#ef4444';
+                if (timeLeft <= 0) endGame();
+                
+                // Increase difficulty
+                difficulty = Math.floor((30 - timeLeft) / 8) + 1;
+            }, 1000);
+        }
+        
+        // --- Start Game ---
+        function startGame() {
+            score = 0; combo = 0; maxCombo = 0;
+            timeLeft = 30; gameActive = true;
+            totalClicks = 0; totalCaught = 0;
+            hasShield = false; difficulty = 1;
+            
+            playArea.querySelectorAll('.target,.float-text,.particle').forEach(el => el.remove());
+            activeTargets.length = 0;
+            shieldIndicator.style.display = 'none';
+            
+            scoreDisplay.textContent = '⭐ 0';
+            timerDisplay.textContent = '30';
+            timerDisplay.style.color = '#e0e0ee';
+            statAcc.textContent = '100%';
+            statCaught.textContent = '0';
+            statMaxCombo.textContent = 'x1';
+            comboBadge.textContent = 'Combo x1';
+            comboBadge.className = '';
+            
+            overlay.classList.add('hidden');
+            
+            spawnInterval = setInterval(() => {
+                spawnTarget();
+                // Extra spawns at higher difficulty
+                if (difficulty >= 3 && Math.random() < 0.3) spawnTarget();
+                if (difficulty >= 5 && Math.random() < 0.2) spawnTarget();
+            }, Math.max(350, 650 - difficulty * 40));
+            
+            spawnTarget(); spawnTarget();
+            startTimer();
+            
+            playSound(660, 'sine', 0.2, 0.06);
+            setTimeout(() => playSound(880, 'sine', 0.2, 0.06), 150);
+        }
+        
+        // --- End Game ---
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            clearInterval(spawnInterval);
+            
+            setTimeout(() => {
+                playArea.querySelectorAll('.target').forEach(el => {
+                    el.style.opacity = '0';
+                    el.style.transition = 'opacity 0.5s';
+                    setTimeout(() => el.remove(), 500);
+                });
+            }, 150);
+            
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('catchStarV2Best', bestScore);
+                playSound(1200, 'triangle', 0.3, 0.09);
+                setTimeout(() => playSound(1600, 'triangle', 0.4, 0.1), 200);
+            }
+            
+            const acc = totalClicks > 0 ? Math.round((totalCaught / totalClicks) * 100) : 0;
+            
+            overlayTitle.textContent = score > 0 ? '🌟 Amazing!' : 'Time\'s Up!';
+            overlaySubtitle.innerHTML = `
+                <div class="stats-grid">
+                    <span>⭐ Score: <strong>${score}</strong></span>
+                    <span>🔥 Max Combo: <strong>x${maxCombo}</strong></span>
+                    <span>🎯 Accuracy: <strong>${acc}%</strong></span>
+                    <span>✨ Caught: <strong>${totalCaught}</strong></span>
+                </div>
+            `;
+            btnStart.textContent = 'Play Again';
+            bestScoreText.textContent = `Best: ⭐ ${bestScore}`;
+            
+            overlay.classList.remove('hidden');
+            updateUI();
+        }
+        
+        // --- Init ---
+        function init() {
+            createBgStars();
+            bestScoreText.textContent = `Best: ⭐ ${bestScore}`;
+            btnStart.addEventListener('click', startGame);
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && !gameActive) {
+                    e.preventDefault();
+                    startGame();
+                }
+            });
+        }
+        
+        init();
+        console.log('%c✨ Catch the Star 2.0 %c— Kyonex Studios',
+            'color:#fbbf24;font-size:18px;font-weight:bold;',
+            'color:#818cf8;');
+        console.log('%c⭐ 🌟 💫 ✨ 🔮 — Catch stars, dodge bombs, build combos!', 'color:#8888aa;');
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /alpha_data.json
+Disallow: /server.js
+
+Sitemap: https://kyonex-studios.github.io/Kyonex-Studios-Landpage/sitemap.xml
