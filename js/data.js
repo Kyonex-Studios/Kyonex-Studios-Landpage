@@ -2,14 +2,14 @@ const featuredProjectId = 'lunesgarden';
 
 // ---------- EVENTS (tampil di Home) ----------
 const eventsData = [
-    {
+    /*{
         title: '⏹️ 2048 Ultimate Release!',
         date: '04-07-2026',
         desc: 'An old-school puzzle game with a modern UI and more features is now here, try the fun.',
         status: 'ongoing',
         link: '',
         linkText: 'Play Now'
-    },
+    },*/
     {
         title: '🌙 LUNESGARDEN Alpha Test',
         date: '27-10-2026',
@@ -79,7 +79,7 @@ const projectsData = [
             { name: 'Play in Web', url: 'https://catch-thestars.netlify.app/', icon: 'web' },
         ]
     },
-    {
+    /*{
         id: '2048ultimate',
         title: '2048 Ultimate',
         icon: 'assets/projects/2048ultimate/icon.png',
@@ -98,7 +98,7 @@ const projectsData = [
             //{ name: 'itch.io', url: 'https://kyonex.itch.io/catch-the-star', icon: 'itch' },
             { name: 'Play in Web', url: 'https://catch-thestars.netlify.app/', icon: 'web' },
         ]
-    }
+    }*/
 ];
 
 const teamData = [
